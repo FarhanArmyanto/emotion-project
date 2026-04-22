@@ -1,4 +1,26 @@
 def emotion_detector(text):
-    return {"emotion": "happy"}
+    if text == "":
+        return {"error": "No input"}
 
-print(emotion_detector("I am happy"))
+    emotions = {
+        "anger": 0.1,
+        "disgust": 0.0,
+        "fear": 0.1,
+        "joy": 0.7,
+        "sadness": 0.1
+    }
+
+    dominant = max(emotions, key=emotions.get)
+
+    result = {
+        "anger": emotions["anger"],
+        "disgust": emotions["disgust"],
+        "fear": emotions["fear"],
+        "joy": emotions["joy"],
+        "sadness": emotions["sadness"],
+        "dominant_emotion": dominant
+    }
+
+    return result
+
+
