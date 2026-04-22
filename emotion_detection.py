@@ -1,54 +1,42 @@
 import requests
+import json
 
-def emotion_detector(text_to_analyse):
-    if text_to_analyse is None or text_to_analyse.strip() == "":
-        return {"error": "Invalid text"}
-
+def emotion_detector(text):
     url = "https://sn-watson-emotion.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict"
 
     headers = {
         "grpc-metadata-mm-model-id": "emotion_aggregated-workflow_lang_en_stock"
     }
 
-    json_data = {
+    payload = {
         "raw_document": {
-            "text": text_to_analyse
+            "text": text
         }
     }
 
-    try:
-        response = requests.post(url, headers=headers, json=json_data, timeout=5)
+    response = requests.post(url, json=payload, headers=headers)
 
-        if response.status_code == 200:
-            response_data = response.json()
-            emotions = response_data["emotionPredictions"][0]["emotion"]
+    if response.status_code == 200:
+        data = response.json()
+        emotions = data['emotionPredictions'][0]['emotion']
 
-            result = {
-                "anger": emotions["anger"],
-                "disgust": emotions["disgust"],
-                "fear": emotions["fear"],
-                "joy": emotions["joy"],
-                "sadness": emotions["sadness"],
-                "dominant_emotion": max(emotions, key=emotions.get)
-            }
+        anger = emotions['anger']
+        disgust = emotions['disgust']
+        fear = emotions['fear']
+        joy = emotions['joy']
+        sadness = emotions['sadness']
 
-            return result
+        dominant_emotion = max(emotions, key=emotions.get)
 
-    except:
-        # fallback kalau API gagal
-        emotions = {
-            "anger": 0.1,
-            "disgust": 0.0,
-            "fear": 0.1,
-            "joy": 0.7,
-            "sadness": 0.1
-        }
+        return (
+            f"For the given statement, the system response is "
+            f"'anger': {anger}, 'disgust': {disgust}, 'fear': {fear}, "
+            f"'joy': {joy}, and 'sadness': {sadness}. "
+            f"The dominant emotion is {dominant_emotion}."
+        )
+    else:
+        return "Error in API call"
 
-        return {
-            "anger": emotions["anger"],
-            "disgust": emotions["disgust"],
-            "fear": emotions["fear"],
-            "joy": emotions["joy"],
-            "sadness": emotions["sadness"],
-            "dominant_emotion": "joy"
-        }
+
+# TEST
+print(emotion_detector("I am happy today"))
